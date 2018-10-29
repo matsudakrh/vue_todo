@@ -1,17 +1,19 @@
 <template>
   <div>
     {{ msg }}
-    <form action="">
-      <button>ADD TASK</button>
-      <button>DELETE FINISHED TASKS</button>
-      <p>input: <input type="text" ></p>
-      <p>task:</p>
+    <form>
+      <button @click="addTodo">ADD TASK</button>
+      <button @click="removeTodo">DELETE FINISHED TASKS</button>
+      <p>input: <input type="text" v-model="newTodo"></p>
+      <p>task: {{ newTodo }}</p>
     </form>
     <div class="task-list">
-      <label class="task-list__item"><input type="checkbox"><button>EDIT</button>vue-router</label>
-      <label class="task-list__item"><input type="checkbox"><button>EDIT</button>vuex</label>
-      <label class="task-list__item"><input type="checkbox"><button>EDIT</button>vue-loader</label>
-      <label class="task-list__item--checked"><input type="checkbox" checked><button>EDIT</button>awesome-vue</label>
+      <label class="task-list__item" v-for="todo in todos" v-bind:class="{ 'task-list__item--checked': todo.done }">
+        <input type="checkbox" v-model="todo.done">
+        <input type="checkbox" v-model="todo.editing">
+        <input type="text" v-if="todo.editing" v-model="todo.text" @keyup.enter="todo.editing = !todo.editing">
+        <span v-else>{{ todo.text }}</span>
+      </label>
     </div>
   </div>
 </template>
@@ -22,7 +24,49 @@
     data () {
       return {
         msg: 'Welcome to your Vue.js App',
+        todos: [
+          {
+            text: 'vue-router',
+            done: false,
+            editing: false,
+          },
+          {
+            text: 'vuex',
+            done: false,
+            editing: false,
+          },
+          {
+            text: 'vue-loader',
+            done: false,
+            editing: false,
+          },
+          {
+            text: 'awesome-vue',
+            done: true,
+            editing: false,
+          },
+        ],
+        newTodo: '',
       }
+    },
+    methods: {
+      addTodo (_e) {
+        let text = this.newTodo && this.newTodo.trim()
+        if (!text) return
+        this.todos.push({
+          text,
+          done: false,
+          editing: false,
+        })
+        this.newTodo = ''
+      },
+      removeTodo (_e) {
+//        どっちがいいのかよくわからない
+//        for (let i = this.todos.length - 1; i >= 0; i--) {
+//          if (this.todos[i].done) this.todos.splice(i, 1)
+//        }
+        this.todos = this.todos.filter(t => !t.done)
+      },
     },
   }
 </script>
@@ -36,6 +80,7 @@
     display: -ms-flex;
     display: -o-flex;
   }
+
   .task-list {
     @include flex-vender;
     flex-direction: column;
